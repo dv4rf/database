@@ -3,12 +3,12 @@ package main
 import (
 	"bufio"
 	"context"
-	db "database/internal/database"
-	cmpt "database/internal/database/compute"
-	strg "database/internal/database/storage"
 	"fmt"
 	"os"
 
+	db "database/internal/database"
+	cmpt "database/internal/database/compute"
+	strg "database/internal/database/storage"
 	"go.uber.org/zap"
 )
 
@@ -25,11 +25,12 @@ func main() {
 
 	database, err := db.NewDatabase(compute, storage, logger)
 	if err != nil {
-		logger.Fatal("failed to start database", zap.Error(err))
+		logger.Fatal("cannot start database", zap.Error(err))
 	}
 
-	logger.Info("client app started")
+	logger.Info("database app started")
 
+Loop:
 	for {
 		fmt.Print("enter a command: ")
 		scanner := bufio.NewScanner(os.Stdin)
@@ -40,12 +41,19 @@ func main() {
 		}
 		input := scanner.Text()
 
-		if input == "stop" {
-			logger.Info("client app terminated")
-			break
+		switch input {
+		case "stop":
+			logger.Info("database app terminated")
+			break Loop
+		case "":
+			fmt.Println("Please enter something !!!")
+			continue
 		}
 
-		handledQuery := database.HandleQuery(ctx, input)
-		fmt.Println(handledQuery)
+		resp, err := database.HandleQuery(ctx, input)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		fmt.Println(resp)
 	}
 }

@@ -2,6 +2,7 @@ package compute
 
 import (
 	"context"
+	"fmt"
 	"go.uber.org/zap"
 )
 
@@ -15,6 +16,13 @@ func NewParser(logger *zap.Logger) (*Parser, error) {
 	}, nil
 }
 
-func (p *Parser) ParseQuery(ctx context.Context, query string) ([]string, error) {
-	return []string{}, nil
+func (p *Parser) ParseInput(ctx context.Context, input string) ([]string, error) {
+	p.logger.Info(fmt.Sprintf("input for parse is: %s ", input))
+
+	st := newStateMachine()
+	tokens, err := st.parse(input)
+	if err != nil {
+		return []string{}, err
+	}
+	return tokens, nil
 }

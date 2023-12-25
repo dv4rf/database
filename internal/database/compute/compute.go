@@ -5,32 +5,12 @@ import (
 	"go.uber.org/zap"
 )
 
-type Query struct {
-	commandID int
-	arguments []string
-}
-
-func NewQuery(commandID int, arguments []string) Query {
-	return Query{
-		commandID: commandID,
-		arguments: arguments,
-	}
-}
-
-func (c *Query) CommandID() int {
-	return c.commandID
-}
-
-func (c *Query) Arguments() []string {
-	return c.arguments
-}
-
 type parser interface {
-	ParseQuery(context.Context, string) ([]string, error)
+	ParseInput(context.Context, string) ([]string, error)
 }
 
 type analyzer interface {
-	AnalyzeQuery(context.Context, []string) (Query, error)
+	AnalyzeInput(context.Context, []string) (string, []string, error)
 }
 
 type Compute struct {
@@ -48,16 +28,16 @@ func NewCompute(parser parser, analyzer analyzer, logger *zap.Logger) (*Compute,
 	}, nil
 }
 
-func (d *Compute) HandleQuery(ctx context.Context, queryStr string) (Query, error) {
-	tokens, err := d.parser.ParseQuery(ctx, queryStr)
+func (d *Compute) HandleQuery(ctx context.Context, input string) (string, []string, error) {
+	tokens, err := d.parser.ParseInput(ctx, input)
 	if err != nil {
-		return Query{}, err
+		return "", nil, err
 	}
 
-	query, err := d.analyzer.AnalyzeQuery(ctx, tokens)
+	command, args, err := d.analyzer.AnalyzeInput(ctx, tokens)
 	if err != nil {
-		return Query{}, err
+		return "", nil, err
 	}
 
-	return query, nil
+	return command, args, nil
 }
