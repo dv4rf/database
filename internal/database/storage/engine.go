@@ -2,19 +2,16 @@ package storage
 
 import (
 	"context"
-	"go.uber.org/zap"
 )
 
 type Storage struct {
-	logger *zap.Logger
-	m      map[string]string
+	m map[string]string
 }
 
-func NewStorage(logger *zap.Logger) (*Storage, error) {
+func NewStorage() *Storage {
 	return &Storage{
-		logger: logger,
-		m:      make(map[string]string),
-	}, nil
+		m: make(map[string]string),
+	}
 }
 
 func (s *Storage) Set(ctx context.Context, key, value string) error {

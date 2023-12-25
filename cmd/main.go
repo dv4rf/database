@@ -19,7 +19,7 @@ func main() {
 
 	parser, err := cmpt.NewParser(logger)
 	analyzer, err := cmpt.NewAnalyzer(logger)
-	storage, err := strg.NewStorage(logger)
+	storage := strg.NewStorage()
 
 	compute, err := cmpt.NewCompute(parser, analyzer, logger)
 
